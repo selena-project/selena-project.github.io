@@ -11,7 +11,7 @@ client nodes and how a user can build a mirage switch emulation model.
 Time dilation
 -------------
 
-.. image:: _static/XenEmuNet.png
+.. image:: static/XenEmuNet.png
 
 In order to implement the time virtualisation mechanism of SELENA in the XEN
 hypervisor, we introduce a number of minor code modification in the time

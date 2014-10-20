@@ -18,7 +18,7 @@ In order to walk the user through the required steps, we use a simple a simple
 topology with two hosts interconnected through a switch, running a netperf
 session, depicted in the following figure.
 
-.. image:: _static/simple-topology.png
+.. image:: static/simple-topology.png
 
 SELENA scenario
 ---------------

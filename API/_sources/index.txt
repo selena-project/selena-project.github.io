@@ -10,20 +10,8 @@ Welcome to Selena's API documentation
 :Date: |today|
 
 
-.. _table_of_contents:
-
-Contents
-========
-
-.. toctree::
-   :titlesonly:
-
-   api-overview
-   selena-api
-
-
 .. _selena_api_overview:
-.. include:: api-overview.rst
+.. include:: selena-api.rst
 
 
 

@@ -1,7 +1,7 @@
 What is SELENA?
 ===============
 
-.. image:: _static/logo-selena.png 
+.. image:: static/logo-selena.png 
     :name: SELENA
     :class: logo
 
@@ -18,7 +18,7 @@ Features
 
 .. container:: feature
 
-    .. image:: _static/TARDIS_by_Ambient_Lullaby.png
+    .. image:: static/TARDIS_by_Ambient_Lullaby.png
         :name: Time Dilation
         :class: imglabel
 
@@ -29,7 +29,7 @@ Features
 
 .. container:: feature
 
-    .. image:: _static/reproducibility-small.png
+    .. image:: static/reproducibility-small.png
         :name: Reproducibility
         :class: reproducibilityLabel
 
@@ -39,7 +39,7 @@ Features
 
 .. container:: feature
 
-    .. image:: _static/scalability.png
+    .. image:: static/scalability.png
         :name: Scalability
         :class: scalabilitylabel
 
@@ -50,7 +50,7 @@ Features
 
 .. container:: feature
 
-    .. image:: _static/openflow-logo.png
+    .. image:: static/openflow-logo.png
         :name: SDN
         :class: sdnlabel
 

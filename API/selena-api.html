@@ -28,8 +28,7 @@
   
 
   
-    <link rel="top" title="selena 0.1.1 documentation" href="index.html"/>
-        <link rel="prev" title="API documentation Overview" href="api-overview.html"/> 
+    <link rel="top" title="selena 0.1.1 documentation" href="index.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -58,13 +57,15 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="api-overview.html">API documentation Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Selena API Documentation</a><ul class="simple">
+            <!-- Local TOC -->
+            <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Selena API Documentation</a><ul>
+<li><a class="reference internal" href="#selena-module">Selena module</a></li>
+<li><a class="reference internal" href="#singleton-module">Singleton module</a></li>
 </ul>
 </li>
 </ul>
-
+</div>
         
       </div>
       &nbsp;
@@ -104,7 +105,7 @@
 <p>The main module for the selena emulation control.</p>
 <dl class="function">
 <dt id="Selena.S_EXIT">
-<tt class="descclassname">Selena.</tt><tt class="descname">S_EXIT</tt><big>(</big><em>message=None</em><big>)</big><a class="headerlink" href="#Selena.S_EXIT" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Selena.</code><code class="descname">S_EXIT</code><span class="sig-paren">(</span><em>message=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.S_EXIT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exits the program return 1 as error status and printing a message.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -119,19 +120,19 @@
 </div>
 <dl class="class">
 <dt id="Selena.Selena">
-<em class="property">class </em><tt class="descclassname">Selena.</tt><tt class="descname">Selena</tt><big>(</big><em>selena_config</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Selena.Selena" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">Selena.</code><code class="descname">Selena</code><span class="sig-paren">(</span><em>selena_config</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This is the main Selena Class</p>
 <dl class="method">
 <dt id="Selena.Selena.doPoolFirstPass">
-<tt class="descname">doPoolFirstPass</tt><big>(</big><em>pScenario</em><big>)</big><a class="headerlink" href="#Selena.Selena.doPoolFirstPass" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doPoolFirstPass</code><span class="sig-paren">(</span><em>pScenario</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.doPoolFirstPass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a first pass of the pool to extract VMs with exact name matches (reuse VMs from previous scenario runs)
 :param pScenario: The name of the scenario</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Selena.Selena.generateVmConfig">
-<tt class="descname">generateVmConfig</tt><big>(</big><em>pNode</em>, <em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.generateVmConfig" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generateVmConfig</code><span class="sig-paren">(</span><em>pNode</em>, <em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.generateVmConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a VM configuration based on the details of a scenario Node.
 This configuration is ready to be consumed by XAPI
 :param pNode: The node object of the scenario
@@ -141,7 +142,7 @@ This configuration is ready to be consumed by XAPI
 
 <dl class="method">
 <dt id="Selena.Selena.getVmFromPool_byName">
-<tt class="descname">getVmFromPool_byName</tt><big>(</big><em>pVmName</em>, <em>pType</em><big>)</big><a class="headerlink" href="#Selena.Selena.getVmFromPool_byName" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getVmFromPool_byName</code><span class="sig-paren">(</span><em>pVmName</em>, <em>pType</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.getVmFromPool_byName" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try to Retrieve a VM from the VMs pool with the specified label-name (left from previous emulation runs)
 All VMs in pool have the scenario&#8217;s name in their description-name meta-info
 (distinct from the name-label)
@@ -152,7 +153,7 @@ All VMs in pool have the scenario&#8217;s name in their description-name meta-in
 
 <dl class="method">
 <dt id="Selena.Selena.get_class">
-<tt class="descname">get_class</tt><big>(</big><em>pathToClass</em><big>)</big><a class="headerlink" href="#Selena.Selena.get_class" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_class</code><span class="sig-paren">(</span><em>pathToClass</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.get_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>A recursive class tracker.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -168,7 +169,7 @@ All VMs in pool have the scenario&#8217;s name in their description-name meta-in
 
 <dl class="method">
 <dt id="Selena.Selena.haltVM">
-<tt class="descname">haltVM</tt><big>(</big><em>pRef</em>, <em>pForce=False</em><big>)</big><a class="headerlink" href="#Selena.Selena.haltVM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">haltVM</code><span class="sig-paren">(</span><em>pRef</em>, <em>pForce=False</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.haltVM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the specified VM
 :param pRef: the OpaqueRef for the VM to be shut down
 :param pForce: Force shutdown, do not wait for the VM to exit gracefully (boolean type)
@@ -177,7 +178,7 @@ All VMs in pool have the scenario&#8217;s name in their description-name meta-in
 
 <dl class="method">
 <dt id="Selena.Selena.initXenNetPool">
-<tt class="descname">initXenNetPool</tt><big>(</big><em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.initXenNetPool" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initXenNetPool</code><span class="sig-paren">(</span><em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.initXenNetPool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the pool with the Xen server networks.
 It obtains a list of the networks that are currently installed on the Xen server and based on their
 name-description meta-info it checks if they belong to the specified scenario and allocates them
@@ -188,7 +189,7 @@ to the networks pool. Networks added in the pool are reused across emulations.
 
 <dl class="method">
 <dt id="Selena.Selena.initXenVmPool">
-<tt class="descname">initXenVmPool</tt><big>(</big><em>pScenarioName</em>, <em>pDoShutdown=True</em><big>)</big><a class="headerlink" href="#Selena.Selena.initXenVmPool" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initXenVmPool</code><span class="sig-paren">(</span><em>pScenarioName</em>, <em>pDoShutdown=True</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.initXenVmPool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the pool with the VMs.
 It obtains a list of the VMs that are currently installed on the Xen server and based on their
 name-description meta-info it checks if they belong to the specified scenario and also infers
@@ -200,7 +201,7 @@ reused across emulations.
 
 <dl class="method">
 <dt id="Selena.Selena.loadScenario">
-<tt class="descname">loadScenario</tt><big>(</big><em>pScenarioClassName</em><big>)</big><a class="headerlink" href="#Selena.Selena.loadScenario" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadScenario</code><span class="sig-paren">(</span><em>pScenarioClassName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.loadScenario" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an instance of the specified scenario and initializes it by calling instance&#8217;s method initScenario()</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -216,7 +217,7 @@ reused across emulations.
 
 <dl class="method">
 <dt id="Selena.Selena.reuseVM">
-<tt class="descname">reuseVM</tt><big>(</big><em>pNode</em>, <em>pVmRef</em>, <em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.reuseVM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reuseVM</code><span class="sig-paren">(</span><em>pNode</em>, <em>pVmRef</em>, <em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.reuseVM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reuse a VM from the scenario&#8217;s VM pool. Update the node meta-info with the VM&#8217;s details.
 :param pNode: The scenario&#8217;s node object that we wish to update with the matching VM&#8217;s details
 :param pVmRef: The OpaqueRef of the VM to be reused
@@ -225,7 +226,7 @@ reused across emulations.
 
 <dl class="method">
 <dt id="Selena.Selena.selenaDo_installScenario">
-<tt class="descname">selenaDo_installScenario</tt><big>(</big><em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.selenaDo_installScenario" title="Permalink to this definition">¶</a></dt>
+<code class="descname">selenaDo_installScenario</code><span class="sig-paren">(</span><em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.selenaDo_installScenario" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>This method instructs Selena to create the VMs and virtual networks</dt>
 <dd>necessary to execute the specified scenario.</dd>
@@ -244,7 +245,7 @@ reused across emulations.
 
 <dl class="method">
 <dt id="Selena.Selena.selenaDo_killScenario">
-<tt class="descname">selenaDo_killScenario</tt><big>(</big><em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.selenaDo_killScenario" title="Permalink to this definition">¶</a></dt>
+<code class="descname">selenaDo_killScenario</code><span class="sig-paren">(</span><em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.selenaDo_killScenario" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method instructs Selena to halt all the VMs which are related to
 the specified scenario. It is assumed that the scenario has been previously
 installed.</p>
@@ -262,7 +263,7 @@ installed.</p>
 
 <dl class="method">
 <dt id="Selena.Selena.selenaDo_startScenario">
-<tt class="descname">selenaDo_startScenario</tt><big>(</big><em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.selenaDo_startScenario" title="Permalink to this definition">¶</a></dt>
+<code class="descname">selenaDo_startScenario</code><span class="sig-paren">(</span><em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.selenaDo_startScenario" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method instructs Selena to start the VMs of the specified scenario. It is
 assumed that the scenario has been previously installed.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -279,7 +280,7 @@ assumed that the scenario has been previously installed.</p>
 
 <dl class="method">
 <dt id="Selena.Selena.selenaDo_uninstallScenario">
-<tt class="descname">selenaDo_uninstallScenario</tt><big>(</big><em>pScenarioName</em><big>)</big><a class="headerlink" href="#Selena.Selena.selenaDo_uninstallScenario" title="Permalink to this definition">¶</a></dt>
+<code class="descname">selenaDo_uninstallScenario</code><span class="sig-paren">(</span><em>pScenarioName</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.selenaDo_uninstallScenario" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>This method instructs Selena to halt and destroy the VMs and virtual networks</dt>
 <dd>which are related to the specified scenario.</dd>
@@ -298,7 +299,7 @@ assumed that the scenario has been previously installed.</p>
 
 <dl class="method">
 <dt id="Selena.Selena.stopAllRunningVMs">
-<tt class="descname">stopAllRunningVMs</tt><big>(</big><em>pForce=False</em><big>)</big><a class="headerlink" href="#Selena.Selena.stopAllRunningVMs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">stopAllRunningVMs</code><span class="sig-paren">(</span><em>pForce=False</em><span class="sig-paren">)</span><a class="headerlink" href="#Selena.Selena.stopAllRunningVMs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops all the VMs that are currently in running state on the Xen server
 :param pForce: Force shutdown, do not wait for VMs to exit gracefully (boolean type)</p>
 </dd></dl>
@@ -307,12 +308,12 @@ assumed that the scenario has been previously installed.</p>
 
 <dl class="class">
 <dt id="SelenaLogger.SelenaLogger">
-<em class="property">class </em><tt class="descclassname">SelenaLogger.</tt><tt class="descname">SelenaLogger</tt><a class="headerlink" href="#SelenaLogger.SelenaLogger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">logging.Logger</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">SelenaLogger.</code><code class="descname">SelenaLogger</code><a class="headerlink" href="#SelenaLogger.SelenaLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">logging.Logger</span></code>, <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This is the main Selena logger Class</p>
 <dl class="method">
 <dt id="SelenaLogger.SelenaLogger.setAllLevels">
-<tt class="descname">setAllLevels</tt><big>(</big><em>pLevel</em><big>)</big><a class="headerlink" href="#SelenaLogger.SelenaLogger.setAllLevels" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setAllLevels</code><span class="sig-paren">(</span><em>pLevel</em><span class="sig-paren">)</span><a class="headerlink" href="#SelenaLogger.SelenaLogger.setAllLevels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the logging level for the logger itself and for all its handlers.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -328,15 +329,15 @@ assumed that the scenario has been previously installed.</p>
 
 <dl class="class">
 <dt id="Scenario.Scenario">
-<em class="property">class </em><tt class="descclassname">Scenario.</tt><tt class="descname">Scenario</tt><a class="headerlink" href="#Scenario.Scenario" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">Scenario.</code><code class="descname">Scenario</code><a class="headerlink" href="#Scenario.Scenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>classdocs</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="XcpManager.XcpManager">
-<em class="property">class </em><tt class="descclassname">XcpManager.</tt><tt class="descname">XcpManager</tt><big>(</big><em>pUrl='localhost'</em>, <em>pUserName='root'</em>, <em>pPasswd='root'</em><big>)</big><a class="headerlink" href="#XcpManager.XcpManager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">XcpManager.</code><code class="descname">XcpManager</code><span class="sig-paren">(</span><em>pUrl='localhost'</em>, <em>pUserName='root'</em>, <em>pPasswd='root'</em><span class="sig-paren">)</span><a class="headerlink" href="#XcpManager.XcpManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>classdocs</p>
 </dd></dl>
 
@@ -345,7 +346,7 @@ assumed that the scenario has been previously installed.</p>
 <p>This is a helper module, used to implement the Singleton pattern (the python way).</p>
 <dl class="class">
 <dt id="Singleton.Singleton">
-<em class="property">class </em><tt class="descclassname">Singleton.</tt><tt class="descname">Singleton</tt><big>(</big><em>name</em>, <em>bases</em>, <em>dict_</em><big>)</big><a class="headerlink" href="#Singleton.Singleton" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">Singleton.</code><code class="descname">Singleton</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>dict_</em><span class="sig-paren">)</span><a class="headerlink" href="#Singleton.Singleton" title="Permalink to this definition">¶</a></dt>
 <dd><p>Singleton class</p>
 <p>Class necessary to implement the Singleton pattern.
 Taken from <a class="reference external" href="http://stackoverflow.com/questions/6760685">StackOverflow</a></p>
@@ -358,13 +359,6 @@ Taken from <a class="reference external" href="http://stackoverflow.com/question
 
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="api-overview.html" class="btn btn-neutral" title="API documentation Overview"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
