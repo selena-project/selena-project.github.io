@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>SELENA by selena-project</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>SELENA</h1>
+        <h2>Faithful Reproduction of Network Experiments, with the heart and the muscles of the XEN hypervisor.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/selena-project" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h3>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>The proliferation of cloud computing has compelled the research community to rethink fundamental aspects of network systems and architectures. However, the tools commonly used to evaluate new ideas have not kept abreast of the latest developments. Common simulation and emulation frameworks fail to provide scalability, fidelity, reproducibility and execute unmodified code, all at the same time.</p>
+
+<p>SELENA is novel network emulation framework built on top of Xen that, which offers fully reproducible experimentation via an automation framework and supports unmodified guest OSes. SELENA provides out-of-the-box compatibility with common applications and OS components, such as network stacks and filesystems. In order to faithfully emulate faster and larger networks, the platform enhances the XEN hypervisor with <em>time-dilation</em> functionality, transparently slowing down time passage for guest operating systems. This enables hardware resource scalability for large and fast network experiments with high network and computational demands. Users can directly control the trade-off between fidelity and running-times via intuitive tuning knobs. </p>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>To appear together with the code release.</p>
+
+<pre><code>$ cd your_repo_root/repo_name
+$ git fetch origin
+$ git checkout gh-pages
+</code></pre>
+
+<h3>
+<a name="material" class="anchor" href="#material"><span class="octicon octicon-link"></span></a>Material</h3>
+
+<ul>
+<li>
+<strong>Faithful Reproduction of Network Experiments</strong>, D. Pediadiatakis, C. Rotsos and A.W. Moore, <em>ANCS 2014</em>,  <a href="http://www.cl.cam.ac.uk/%7Ecr409/selena-ancs.pdf">pdf</a>
+</li>
+<li>
+<strong>Selena: Faithful Reproduction of Network Experiment (presentation)</strong>, D. Pediadiatakis, C. Rotsos and A.W. Moore, <em>MSN 2014</em> <a href="http://www.cl.cam.ac.uk/%7Ecr409/selena-coseners.pdf">pdf</a>
+</li>
+</ul><h3>
+<a name="support" class="anchor" href="#support"><span class="octicon octicon-link"></span></a>Support</h3>
+
+<p>This project is maintained by Dimosthenis Pediaditakis and Charalampos Rotsos (contact: <a href="mailto:firstname.lastname@cl.cam.ac.uk">firstname.lastname@cl.cam.ac.uk</a>)</p>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-53229445-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>

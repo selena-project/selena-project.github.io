@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Selena Tutorial &mdash; selena 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="selena 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="SELENA under the hood" href="advanced.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="SELENA under the hood"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">selena 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="selena-tutorial">
+<span id="id1"></span><h1>Selena Tutorial<a class="headerlink" href="#selena-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>SELENA provides a simple Python API which allows easy description, deployment
+automation and execution of experiments. The API builds on top of the XAPI
+service and provides enhances configuration primitives to describe network
+topologies, resource policies and execute commands on VMs.</p>
+<p>In order to describe a SELENA experiment, the experimenter must extend the
+Scenario class and implement custom methods for two functions: The
+<em>init_scenario</em> function, describing the topology of the experiment, and the
+<em>run_scenario</em> function, describing the sequence of commands of the
+experiment on the guest VM.</p>
+<p>In order to walk the user through the required steps, we use a simple a simple
+topology with two hosts interconnected through a switch, running a netperf
+session, depicted in the following figure.</p>
+<img alt="_images/simple-topology.png" src="_images/simple-topology.png" />
+<div class="section" id="selena-scenario">
+<h2>SELENA scenario<a class="headerlink" href="#selena-scenario" title="Permalink to this headline">¶</a></h2>
+<p>In order to run an experiment, a user must implement a Python class which
+inherits the Scenario class. The custom scenario class must follow a specific
+naming pattern. Specifically, the filename must be the same as the name of the
+Scenario class. In this tutorial, we create a Tutorial class which must be
+saved in a Tutorial.py file in order to allow execution with the SELENA
+execution tools.</p>
+<p>A python script that can replicate the previous topology and experimental
+scenario is the following::</p>
+<div class="highlight-python"><div class="highlight"><pre>from Scenario import Scenario, NodeTypes
+import time
+
+
+class Tutorial(Scenario):
+    def __init__(self):
+        super(Tutorial, self).__init__()
+
+    def initScenario(self):
+        if not super(Tutorial, self).initScenario():
+            return False
+        self.name = &quot;Tutorial&quot;
+
+        # Add the server
+        self.addNode(self.newNode(
+            0,                        # Unique id for the Node
+            &#39;server&#39;,                 # Name of the node
+            NodeTypes.LINUX_HOST,     # The node is a Linux host
+            # definition of the list of interfaces and respective
+            # network configuration primitives
+            [(1000, &quot;RANDOM&quot;, &quot;10.0.0.254&quot;, &quot;255.255.255.0&quot;, &quot;10.0.0.1&quot;)],
+            # Nunber of vCPUs used by the node
+            2,
+            # Identification of the core on which the node is Pinned
+            &#39;4&#39;,
+            # Available RAM for the node
+            536870912))
+
+        # Add the clients
+        self.addNode(self.newNode(1, &#39;client&#39;, NodeTypes.LINUX_HOST,
+                                  [(1000, &quot;RANDOM&quot;, &quot;10.0.0.1&quot;, &quot;255.255.255.0&quot;, &quot;10.0.0.254&quot;)],
+                                  1, &#39;6,7&#39;, 536870912))
+
+        # Switch definition. The switch has a different node type and
+        # has two interfaces, one for each host, which don&#39;t have any
+        # IP configuration.
+        self.addNode(self.newNode(2, &#39;switch&#39;, NodeTypes.LINUX_OVS,
+                                  [(1000, &quot;RANDOM&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;), (1000, &quot;RANDOM&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;)],
+                                  1, &#39;5&#39;, 536870912))
+
+        # link between client and switch
+        self.addLink(self.newLink((1, 0), (2, 1), 1000, 0.1))
+        # link between server and switch
+        self.addLink(self.newLink((0, 0), (2, 0), 1000, 0.1))
+
+        return True
+
+    def runScenario(self):
+        try:
+            # A method to configure each device queue sizes and
+            # disable network optimizations and enable the openvswitch
+            # instance.
+                self.setupNetworking()
+            # A method to configure link delays.
+                self.setupNetworkEmulation()
+
+            # Once everything is setted up, we run a command to run the
+            # netperf session and output statistics in a file.
+            self.pushCommand(1, &quot;netperf -H 10.0.0.254 -C -c -t TCP_STREAM -l 60 -D 1 &gt; /tmp/throughput.log&quot;)
+
+            # wait for the emulation to complete and return to terminate
+            # the experiment.
+            time.sleep(60)
+        except KeyboardInterrupt:
+            return
+
+    def getLinuxInterfaceCmd(self, ix, addr, mask, gw, queue):
+        # interface 0 is the management. subsequent interfaces follow a
+        # naming similar to what is used in the link definitions.
+        intf = &#39;eth&#39;+str(ix+1)
+        cmdLine = &quot;ifconfig %s up&quot; % (intf)
+        cmdLine += &quot;; ifconfig %s txqueuelen %s&quot; % (intf, str(queue))
+        cmdLine += &quot;; ethtool -K %s tso off tx off rx off&quot; % (intf)
+        if addr:
+            cmdLine = &quot;ifconfig %s %s netmask %s&quot; % (intf, addr, mask)
+            if gw:
+                cmdLine += &quot;; ip route del 0/0&quot;
+                cmdLine += &quot;; route add default gw %s %s&quot; % (gw, intf)
+        return (intf, cmdLine)
+
+    def setupNetworking(self):
+        # Setup device interface and port grouping in the switch.
+        for nId, node in self.EMU_NODES.items():
+            for ix in range(0, len(node[&#39;NETIFS&#39;])):
+                dev = node[&#39;NETIFS&#39;][ix]
+                (_, cmd) = self.getLinuxInterfaceCmd(ix, dev[2], dev[3], dev[4], dev[0])
+                self.pushCommand(nId, cmd)
+            if node[&#39;TYPE&#39;] == NodeTypes.LINUX_OVS:
+                bridge = &#39;br0&#39;
+                self.pushCommand(nId, &#39;ovs-vsctl del-br %s; ovs-vsctl add-br %s&#39; % (bridge, bridge))
+                for ix in range(0, len(node[&#39;NETIFS&#39;])):
+                    dev = node[&#39;NETIFS&#39;][ix]
+                    (intf, _) = self.getLinuxInterfaceCmd(ix, dev[2], dev[3], dev[4], dev[0])
+                    self.pushCommand(nId, &#39;ovs-vsctl add-port %s %s&#39; % (bridge, intf))
+        time.sleep(5)
+
+    def getLinkEmulationCmd(self, ix, rate, delay=None):
+        # configure an emulation of the link delay.
+        intf = &#39;eth&#39;+str(ix+1)
+        cmdLine = &quot;tc qdisc del root dev %s ; &quot; % (intf)
+        if delay:
+            cmdLine += &quot;tc qdisc add dev %s root handle 1: netem delay %sms ; &quot; % (intf, str(delay))
+        return cmdLine
+
+    def setupNetworkEmulation(self):
+        # Set all the network interfaces
+        for link in self.LINKS:
+            delay = link[&#39;LATENCY&#39;]
+            if delay:
+                nodeA = self.EMU_NODES[link[&#39;NODE_A&#39;]]
+                ifA = link[&#39;IFACE_A&#39;]
+                nodeB = self.EMU_NODES[link[&#39;NODE_B&#39;]]
+                ifB = link[&#39;IFACE_B&#39;]
+                rate = link[&#39;RATE&#39;]
+
+                # we only configure link latencies on the edge nodes
+                # of the host.
+                if (nodeA[&#39;TYPE&#39;] != NodeTypes.LINUX_OVS):
+                    # Set the first interface of the link
+                    cmd = self.getLinkEmulationCmd(ifA, rate, delay)
+                    self.pushCommand(nodeA[&#39;ID&#39;], cmd)
+                if nodeB[&#39;TYPE&#39;] != NodeTypes.LINUX_OVS:
+                    # Set the second interface of the link
+                    cmd = self.getLinkEmulationCmd(ifB, rate, delay)
+                    self.pushCommand(nodeB[&#39;ID&#39;], cmd)
+        time.sleep(5)
+</pre></div>
+</div>
+<p>As mentioned earlier a SELENA experimental definition must extend the Scenario
+class and implement two main functions: <cite>init_scenario</cite> and <cite>run_scenario</cite>. The
+init_scenario method must initialize the topology of the network. When the
+function is invoked the SELENA instance has only connected to the XEN server
+and awaits the topology in order to map experimental nodes in guest VMs. The
+Scenario class provides four methods to specify the topology of the experiment
+of the network. The newNode and addNode methods allow the experimenter to
+define the hosts of the topology along with the available interfaces and
+address configurations. Each node has a unique id and string name, defined by
+the experimenter, a node type, summarised in the table below, an array with
+network interfaces and CPU number and affinity and memory limitations for each
+guest. Furthermore, in order to define the topology links the SELENA API
+provides the commands addLink and newLink. Each link in the SELENA abstraction
+consists of node and interface index pairs and the API allows the user to define
+the link bandwidth and latency.</p>
+<p>In the case of this tutorial, our sample code configure two nodes with 1 interface,
+which represent the client and the server of our example, and 1 node with 2 interfaces,
+which will represent the switch of the topology. Furthermore, the method defines
+two links, connecting the first interface of the client and server with an interface
+of the switch.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="40%" />
+<col width="39%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>NodeTypes</strong></th>
+<th class="head"><strong>Configuration</strong></th>
+<th class="head"><strong>Purpose</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>LINUX_HOST</td>
+<td>Linux 3.10.11, Debian Wheezy</td>
+<td>Simple end-host to run traffic
+generators and applications</td>
+</tr>
+<tr class="row-odd"><td>LINUX_OVS</td>
+<td>Linux 3.10.11, Debian Wheezy,
+Open vSwitch 1.4.2</td>
+<td>A switch abstraction running
+an instance of open vSwitch</td>
+</tr>
+<tr class="row-even"><td>MIRAGE_SWITCH</td>
+<td>Mirage 1.0, ocaml-openflow</td>
+<td>A Mirage based switch emulator</td>
+</tr>
+<tr class="row-odd"><td>OF_CONTROLLER</td>
+<td>Linux 3.10.11, Debian Wheezy,
+Java 1.6, Nox, Pox, Floodlight,
+FlowVisor</td>
+<td>A node configure to run all
+popular OpenFlow controllers</td>
+</tr>
+<tr class="row-even"><td>LINUX_WEBSERVER</td>
+<td>Linux 3.10.11, Debian Wheezy,
+Apache 2.0, Nginx, PHP, MySQL,
+memcached, redis</td>
+<td>An experimental containing all
+required software to run web
+applications</td>
+</tr>
+</tbody>
+</table>
+<p>The run_scenario method is executed once the topology is up and configured and the nodes
+have all connected to the signalling service in Dom0. The SELENA abstraction allows
+a Scenario class to manipulate the guest and execute commands within them. In order to
+achieve this, the scenario object has the pushCmd method which runs a command in
+the guest with the respective node index. In the case of the tutorial, the run_scenario
+executes in the client node a netperf command towards the controller.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Selena Tutorial</a><ul>
+<li><a class="reference internal" href="#selena-scenario">SELENA scenario</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="next chapter">SELENA under the hood</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="SELENA under the hood"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">selena 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dimosthenis Pediaditakis.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

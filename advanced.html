@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SELENA under the hood &mdash; selena 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="selena 0.1.1 documentation" href="index.html" />
+    <link rel="prev" title="Selena Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Selena Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">selena 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="selena-under-the-hood">
+<span id="selena-advacned"></span><h1>SELENA under the hood<a class="headerlink" href="#selena-under-the-hood" title="Permalink to this headline">¶</a></h1>
+<p>In this section of the tutorial, we provide some further details on the
+architecture of SELENA. Specifically, we discuss how SELENA implements time
+dilation in the hypervisor, how SELENA coordinates command execution between
+client nodes and how a user can build a mirage switch emulation model.</p>
+<div class="section" id="time-dilation">
+<h2>Time dilation<a class="headerlink" href="#time-dilation" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/XenEmuNet.png" src="_images/XenEmuNet.png" />
+<p>In order to implement the time virtualisation mechanism of SELENA in the XEN
+hypervisor, we introduce a number of minor code modification in the time
+subsystem of XEN. Each PV guest is contains a time driver which is integrated
+with the XEN platform and allows guest VMs to read time from the Hypervisor, as
+well as schedule time events.</p>
+<p>In terms of time-keeping, Xen exposes to guests two timestamp values, the
+system-time (time since guest boot or resume) and the wall-clock time (time
+since epoch when system-time was zero), through a shared memory structure
+(shared_info_page). System-time is updated by Xen every time the guest is
+being scheduled. In between updates, the guest keeps accounting of wall-clock
+and system time by extrapolating the current values based on the value of TSC
+register (an x86 register counting CPU clock cycles). TSC values in Xen are
+obtained through the rtdsc instruction. They are either native, accessed
+directly from the CPU register, or emulated, intercepted through a trap by Xen.
+In order to effectively virtualize time-keeping, the hypervisor multiplies with
+the TDF parameter all the wall-clock, system and emulated TSC time values
+provided to the guest. Additionally, because native TSC values are
+unmodifiable, our approach multiples with the TDF value the TSC scaling factor
+(tsc_to_system_mul), a constant used by the guests to convert TSC cycles to
+system time.</p>
+<p>In terms of time event scheduling, the guest PVOPS driver intercepts and
+translates such requests to equivalent Xen hypercalls
+(HYPERVISOR_set_timer_op). When the timer expires, the hypervisor delivers a
+software timer interrupt (VIRQ_TIMER) back to the guest and triggers the
+associated timekeeping interrupt handlers. Time event virtualization in SELENA
+is achieved in the hypervisor by intercepting timer-setup hypercalls and
+scaling their timeout values with the TDF parameter. Our approach also covers
+the case of periodic timer events used by older Linux versions. Recent Linux
+kernels also employ loop-based delays for timeout values lower than 10 usec.
+These types of events are not directly managed by the hypervisor, but our
+approach ensures accurate event execution.</p>
+<p>Using these simple tricks, SELENA can exploit XEN support for heterogeneity,
+while allowing experiments to virtualize time. At the current development state
+of the SELENA, our support to modify time dilation factor(TDF) at run time is
+limited, due primarily to luck of interest to enable this feature and in
+addition because a clean restart between TDF values enforce a purging of the
+running host with stale configurations. Nonetheless, enabling time dilation
+factor dynamics can be trivially introduced and we are planning to enable it
+in future releases. In the current version, TDF value modification are hardcode
+in the source code of the hypervisor and require from the experimenter to
+update the source code, recompile incrementally the source and replace
+the hypervisor binary.</p>
+</div>
+<div class="section" id="coordination-service">
+<h2>Coordination service<a class="headerlink" href="#coordination-service" title="Permalink to this headline">¶</a></h2>
+<p>In order to allow SELENA to run experimental commands distributely we have
+implemented a simple remote execution service. The service consists of a single
+coordination service, running on Dom0, and multiple coordination client
+services running within the guest VMs. The coordination server receives
+commands from the SELENA Scenario and distributes them to respective VMs.</p>
+<p>In order to implement the coordination protocol, SELENA uses the Xenstore
+service. Xenstore is a PubSub service with a filesystem like abstraction and is
+used by the XEN hypevisor as a distributed registry between the Dom0 and the
+guests. Each guest has a unique tree in Xenstore, under which SELENA adds a
+SELENA directory on which the server and clients exchange commands and output.</p>
+<p>The channel uses the following entries in the SELENA xenstore directory:</p>
+<ul class="simple">
+<li><em>bootipaddr, bootipmask</em>: These entries are set once the VM is booted and they are used to configure the addressing in the management interface of the experimental hosts.</li>
+<li><em>cmd, response, retstatus</em> : These entries are used to propagate commands to the client and receive stdout and return status of the process. cmd is set from the server to push for commands, while response and retstatus are set by the client once the command completes execution.</li>
+<li><em>lock</em> : This entry is used by the client to notify the server that it is processing a previous command. This will deffer the server from pushing additional commands to the client and wait for outcome from the client for previous commands.</li>
+</ul>
+</div>
+<div class="section" id="switch-emulation">
+<h2>Switch emulation<a class="headerlink" href="#switch-emulation" title="Permalink to this headline">¶</a></h2>
+<p>Switch control emulation is implemented in SELENA using the OpenFlow switch
+library of the Mirage service. In order to create a new switch model a user
+can download the <cite>ocaml-openflow &lt;http://www.github.com/crotsos/ocaml-openflow&gt;</cite>.
+in order to recompile a new version of a switch you need to update the
+switch delay model parameter in file switch/basic_switch.ml and rerun make.
+This will generate a new ofswitch.xen file, which be used copied to the folder
+/boot/guest/ and used in the VM_args argument in the VM param list.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SELENA under the hood</a><ul>
+<li><a class="reference internal" href="#time-dilation">Time dilation</a></li>
+<li><a class="reference internal" href="#coordination-service">Coordination service</a></li>
+<li><a class="reference internal" href="#switch-emulation">Switch emulation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Selena Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/advanced.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Selena Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">selena 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dimosthenis Pediaditakis.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
