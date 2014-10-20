@@ -11,8 +11,9 @@ topologies, resource policies and execute commands on VMs.
 In order to describe a SELENA experiment, the experimenter must extend the
 Scenario class and implement custom methods for two functions: The
 *init_scenario* function, describing the topology of the experiment, and the
-*run_scenario* function, describing the sequence of commands of the
-experiment on the guest VM.
+*run_scenario* function, describing the sequence of commands of the experiment
+on the guest VM. Extensive details on the Selena API can be found `here
+<http://selena-project.github.io/API/>`_ .
 
 In order to walk the user through the required steps, we use a simple a simple
 topology with two hosts interconnected through a switch, running a netperf
@@ -209,4 +210,110 @@ achieve this, the scenario object has the pushCmd method which runs a command in
 the guest with the respective node index. In the case of the tutorial, the run_scenario
 executes in the client node a netperf command towards the controller. 
 
+Scenario execution
+------------------
+
+In order to execute a Selena experiment, the selena-control python package
+provides a simple tool. By default, the execution script is install in
+/usr/bin/ by the install process of the setup script. The tool by default
+provides the following options: ::
+
+    Usage: selena [options] [experimentDescription]
+
+    This selena utility creates a Selena emulation management instance which can
+    create / configure / execute / remove a virtual-network experiment specified
+    by the user
+    
+    Options:
+      -h, --help            show this help message and exit
+      -v, --version         Print the version and exit.
+      -i, --install         Attempt to create the VMs for the specified experiment
+                            description
+      -u, --uninstall       Attempt to shutdown all VMs of the specified
+                            experiment and destroy them
+      -k, --kill            Shutdown all running VMs of the specified experiment
+      -s, --start           Start and configure all VMs of the specified
+                            experiment
+      -r, --restart         Restart and re-configure all VMs of the specified
+                            experiment (halt all, reset net, start all, configure)
+      -t, --test            Run a quick diagnostic test
+      -l LOGLEVEL, --logging=LOGLEVEL
+                            Specifies the logging level:DEBUG | INFO | WARNING |
+                            CRITICAL | ERROR
+      -c JSONCONFIG, --config=JSONCONFIG
+                            Specifies a custom JSON configuration file for Selena
+
+The tool provides three basic operations: `install (-i)`, which creates the relevant
+VMs and network configurations, `start (-s)`, which runs the execution scenario, `kill
+(-k)`, which stops all VMs and `uninstall (-u)`, which destroys all create VMs and 
+networks. 
+
+Along with the scenario source code, the tool requires a JSON file to describe the 
+selena templates. The selena configuration file is defined through the -c option and 
+an example of a selena configuration file is the following: ::
+
+    {
+        "XenServerConfig": {
+            "XCP_url": "http://localhost",
+            "XCP_uname": "root",
+            "XCP_passwd": "selenasrg"
+        },
+    
+        "SelenaMetaInfo": {
+            "SELENA_VM_KEYWORD": "SELENA_VM",
+            "SELENA_NET_KEYWORD": "SELENA_NET",
+            "SELENA_VDI_KEYWORD": "SELENA_VDI",
+            "SELENA_VBD_KEYWORD": "SELENA_VBD"
+        },
+    
+        "SelenaManagementNet": {
+            "SELENA_MGMT_NET_NAME": "SELENA_MANAGEMENT_NET",
+            "SELENA_MGMT_NET_IP": "192.168.254.1",
+            "SELENA_MGMT_NETADDR": "192.168.254.0",
+            "SELENA_MGMT_NET_MASK": "255.255.255.0"
+        },
+    
+        "SelenaTemplates": [
+            {
+                "Name": "LINUX_HOST",
+                "PV_kernel": "/boot/guest/vmlinuz-3.10.11-1tdf-amd64",
+                "PV_ramdisk": "/boot/guest/initrd.img-3.10.11-1tdf-amd64",
+                "PV_args": "root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet",
+                "PV_bootloader": "",
+                "PV_bootloader_args": "",
+                "VDI_UUID": "41c7c041-e056-47dc-9520-d144a61b5ba3"
+            },
+            {
+                "Name": "LINUX_OVS",
+                "PV_kernel": "/boot/guest/vmlinuz-3.10.11-1tdf-amd64",
+                "PV_ramdisk": "/boot/guest/initrd.img-3.10.11-1tdf-amd64",
+                "PV_args": "root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet",
+                "PV_bootloader": "",
+                "PV_bootloader_args": "",
+                "VDI_UUID": "55eda677-c2cc-4d88-b23e-4505df5e0d26"
+            },
+            {
+                "Name": "MIRAGE_SWITCH",
+                "PV_kernel": "/boot/guest/ofswitch.xen",
+                "PV_ramdisk": "",
+                "PV_args": "",
+                "PV_bootloader": "",
+                "PV_bootloader_args": "",
+                "VDI_UUID": ""
+            },
+            {
+                "Name": "OF_CONTROLLER",
+                "PV_kernel": "/boot/guest/vmlinuz-3.10.11-1tdf-amd64",
+                "PV_ramdisk": "/boot/guest/initrd.img-3.10.11-1tdf-amd64",
+                "PV_args": "root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet",
+                "PV_bootloader": "",
+                "PV_bootloader_args": "",
+                "VDI_UUID": "5c0331e9-64c8-451a-a132-7df78dcc6eb9"
+            }
+        ]
+    }
+
+In the previous setup the user is critical to update the username and password fields, using the 
+username and password of a system user with privileges to create new VM, as well as 
+the vdi uuid of the Selena VM templates. 
 

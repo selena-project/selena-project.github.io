@@ -61,8 +61,8 @@ topologies, resource policies and execute commands on VMs.</p>
 <p>In order to describe a SELENA experiment, the experimenter must extend the
 Scenario class and implement custom methods for two functions: The
 <em>init_scenario</em> function, describing the topology of the experiment, and the
-<em>run_scenario</em> function, describing the sequence of commands of the
-experiment on the guest VM.</p>
+<em>run_scenario</em> function, describing the sequence of commands of the experiment
+on the guest VM. Extensive details on the Selena API can be found <a class="reference external" href="http://selena-project.github.io/API/">here</a> .</p>
 <p>In order to walk the user through the required steps, we use a simple a simple
 topology with two hosts interconnected through a switch, running a netperf
 session, depicted in the following figure.</p>
@@ -277,6 +277,111 @@ achieve this, the scenario object has the pushCmd method which runs a command in
 the guest with the respective node index. In the case of the tutorial, the run_scenario
 executes in the client node a netperf command towards the controller.</p>
 </div>
+<div class="section" id="scenario-execution">
+<h2>Scenario execution<a class="headerlink" href="#scenario-execution" title="Permalink to this headline">¶</a></h2>
+<p>In order to execute a Selena experiment, the selena-control python package
+provides a simple tool. By default, the execution script is install in
+/usr/bin/ by the install process of the setup script. The tool by default
+provides the following options:</p>
+<div class="highlight-python"><div class="highlight"><pre>Usage: selena [options] [experimentDescription]
+
+This selena utility creates a Selena emulation management instance which can
+create / configure / execute / remove a virtual-network experiment specified
+by the user
+
+Options:
+  -h, --help            show this help message and exit
+  -v, --version         Print the version and exit.
+  -i, --install         Attempt to create the VMs for the specified experiment
+                        description
+  -u, --uninstall       Attempt to shutdown all VMs of the specified
+                        experiment and destroy them
+  -k, --kill            Shutdown all running VMs of the specified experiment
+  -s, --start           Start and configure all VMs of the specified
+                        experiment
+  -r, --restart         Restart and re-configure all VMs of the specified
+                        experiment (halt all, reset net, start all, configure)
+  -t, --test            Run a quick diagnostic test
+  -l LOGLEVEL, --logging=LOGLEVEL
+                        Specifies the logging level:DEBUG | INFO | WARNING |
+                        CRITICAL | ERROR
+  -c JSONCONFIG, --config=JSONCONFIG
+                        Specifies a custom JSON configuration file for Selena
+</pre></div>
+</div>
+<p>The tool provides three basic operations: <cite>install (-i)</cite>, which creates the relevant
+VMs and network configurations, <cite>start (-s)</cite>, which runs the execution scenario, <cite>kill
+(-k)</cite>, which stops all VMs and <cite>uninstall (-u)</cite>, which destroys all create VMs and
+networks.</p>
+<p>Along with the scenario source code, the tool requires a JSON file to describe the
+selena templates. The selena configuration file is defined through the -c option and
+an example of a selena configuration file is the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;XenServerConfig&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;XCP_url&quot;</span><span class="p">:</span> <span class="s">&quot;http://localhost&quot;</span><span class="p">,</span>
+        <span class="s">&quot;XCP_uname&quot;</span><span class="p">:</span> <span class="s">&quot;root&quot;</span><span class="p">,</span>
+        <span class="s">&quot;XCP_passwd&quot;</span><span class="p">:</span> <span class="s">&quot;selenasrg&quot;</span>
+    <span class="p">},</span>
+
+    <span class="s">&quot;SelenaMetaInfo&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;SELENA_VM_KEYWORD&quot;</span><span class="p">:</span> <span class="s">&quot;SELENA_VM&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_NET_KEYWORD&quot;</span><span class="p">:</span> <span class="s">&quot;SELENA_NET&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_VDI_KEYWORD&quot;</span><span class="p">:</span> <span class="s">&quot;SELENA_VDI&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_VBD_KEYWORD&quot;</span><span class="p">:</span> <span class="s">&quot;SELENA_VBD&quot;</span>
+    <span class="p">},</span>
+
+    <span class="s">&quot;SelenaManagementNet&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;SELENA_MGMT_NET_NAME&quot;</span><span class="p">:</span> <span class="s">&quot;SELENA_MANAGEMENT_NET&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_MGMT_NET_IP&quot;</span><span class="p">:</span> <span class="s">&quot;192.168.254.1&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_MGMT_NETADDR&quot;</span><span class="p">:</span> <span class="s">&quot;192.168.254.0&quot;</span><span class="p">,</span>
+        <span class="s">&quot;SELENA_MGMT_NET_MASK&quot;</span><span class="p">:</span> <span class="s">&quot;255.255.255.0&quot;</span>
+    <span class="p">},</span>
+
+    <span class="s">&quot;SelenaTemplates&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">&quot;Name&quot;</span><span class="p">:</span> <span class="s">&quot;LINUX_HOST&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_kernel&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/vmlinuz-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_ramdisk&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/initrd.img-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_args&quot;</span><span class="p">:</span> <span class="s">&quot;root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader_args&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;VDI_UUID&quot;</span><span class="p">:</span> <span class="s">&quot;41c7c041-e056-47dc-9520-d144a61b5ba3&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&quot;Name&quot;</span><span class="p">:</span> <span class="s">&quot;LINUX_OVS&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_kernel&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/vmlinuz-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_ramdisk&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/initrd.img-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_args&quot;</span><span class="p">:</span> <span class="s">&quot;root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader_args&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;VDI_UUID&quot;</span><span class="p">:</span> <span class="s">&quot;55eda677-c2cc-4d88-b23e-4505df5e0d26&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&quot;Name&quot;</span><span class="p">:</span> <span class="s">&quot;MIRAGE_SWITCH&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_kernel&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/ofswitch.xen&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_ramdisk&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_args&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader_args&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;VDI_UUID&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&quot;Name&quot;</span><span class="p">:</span> <span class="s">&quot;OF_CONTROLLER&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_kernel&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/vmlinuz-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_ramdisk&quot;</span><span class="p">:</span> <span class="s">&quot;/boot/guest/initrd.img-3.10.11-1tdf-amd64&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_args&quot;</span><span class="p">:</span> <span class="s">&quot;root=UUID=45dd90ef-23c2-479b-86a5-78fa864dd249 ro console=hvc0 quiet&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;PV_bootloader_args&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;VDI_UUID&quot;</span><span class="p">:</span> <span class="s">&quot;5c0331e9-64c8-451a-a132-7df78dcc6eb9&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the previous setup the user is critical to update the username and password fields, using the
+username and password of a system user with privileges to create new VM, as well as
+the vdi uuid of the Selena VM templates.</p>
+</div>
 </div>
 
 
@@ -289,6 +394,7 @@ executes in the client node a netperf command towards the controller.</p>
   <ul>
 <li><a class="reference internal" href="#">Selena Tutorial</a><ul>
 <li><a class="reference internal" href="#selena-scenario">SELENA scenario</a></li>
+<li><a class="reference internal" href="#scenario-execution">Scenario execution</a></li>
 </ul>
 </li>
 </ul>

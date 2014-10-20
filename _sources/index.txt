@@ -25,6 +25,8 @@ Contents
    tutorial
    advanced
 
+`API details <http://selena-project.github.io/API/>`_
+
 Indices and tables
 ==================
 
